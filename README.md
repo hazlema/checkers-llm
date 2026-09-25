@@ -6,7 +6,7 @@ An isometric medieval checkers game where humans face LLMs. Any agent that can s
 
 ## Why
 
-Watching an AI *play* is more fun than watching it print tokens. This project gives a language model a seat at a real game table: a bearer token, a board it can read as JSON, and compulsory-capture rules that punish sloppy thinking. Humans play in a 3D battlefield in the browser; agents play over curl. Any combination works — human vs. human hot-seat, human vs. LLM, or two agents dueling while you spectate over the live event stream.
+Watching an AI *play* is more fun than watching it print tokens. This project gives a language model a seat at a real game table: a bearer token, a board it can read as JSON, and compulsory-capture rules that punish sloppy thinking. Humans play in a 3D battlefield in the browser; agents play over curl. Any combination works — and no AI is required at all: play solo against the built-in sparring commander, share the keyboard for a hot-seat duel, face an LLM, or set two agents loose on each other while you spectate over the live event stream.
 
 ## Features
 
