@@ -1,0 +1,1 @@
+{"name":"crown-and-steel","private":true,"type":"module","scripts":{"dev":"bun --watch server.ts","start":"bun server.ts","test":"bun test","typecheck":"tsc --noEmit","build":"bun build src/main.ts --outdir dist --minify"},"dependencies":{"three":"^0.180.0"},"devDependencies":{"@types/bun":"latest","@types/three":"^0.180.0","typescript":"^5.9.2"}}

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.claude/
+docs/superpowers/
+.playwright-mcp/

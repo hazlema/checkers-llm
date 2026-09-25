@@ -1,0 +1,16 @@
+import { describe, expect, test } from 'bun:test';
+import { createGame, legalMoves, applyMove, type Game, type Piece } from '../src/game';
+const piece = (id: string, side: 'red'|'blue', square: string, king = false): Piece => ({id, side, square, king});
+const fixture = (pieces: Piece[], turn: 'red'|'blue'='red'): Game => ({...createGame(), pieces, turn, positions: {}});
+describe('checkers rules', () => {
+ test('starts with 12 soldiers per army and seven red moves', () => { const g=createGame(); expect(g.pieces.filter(p=>p.side==='red')).toHaveLength(12); expect(g.pieces.filter(p=>p.side==='blue')).toHaveLength(12); expect(legalMoves(g)).toHaveLength(7); });
+ test('moves without mutating the previous board', () => { const g=createGame(); const n=applyMove(g,'a3','b4'); expect(n.turn).toBe('blue'); expect(g.pieces.find(p=>p.square==='a3')).toBeDefined(); expect(n.revision).toBe(1); });
+ test('rejects illegal and out-of-turn moves', () => {expect(()=>applyMove(createGame(),'a3','a4')).toThrow(); expect(()=>applyMove(createGame(),'b6','a5')).toThrow();});
+ test('forces captures globally', () => {const g=fixture([piece('r','red','c3'),piece('r2','red','g3'),piece('b','blue','d4'),piece('b2','blue','h8')]); expect(legalMoves(g)).toEqual([{from:'c3',to:'e5',capture:'d4'}]); expect(()=>applyMove(g,'g3','f4')).toThrow(); });
+ test('continues chains with same piece and keeps turn until complete', () => {let g=fixture([piece('r','red','a1'),piece('r2','red','g1'),piece('b','blue','b2'),piece('b2','blue','d4'),piece('b3','blue','h8')]); g=applyMove(g,'a1','c3'); expect(g.turn).toBe('red'); expect(g.forcedPiece).toBe('r'); expect(legalMoves(g)).toEqual([{from:'c3',to:'e5',capture:'d4'}]); g=applyMove(g,'c3','e5'); expect(g.turn).toBe('blue'); expect(g.forcedPiece).toBeNull(); });
+ test('crowning ends a jump sequence', () => {const g=applyMove(fixture([piece('r','red','b6'),piece('b','blue','c7'),piece('b2','blue','e7')]),'b6','d8'); expect(g.pieces[0].king).toBe(true); expect(g.turn).toBe('blue'); expect(g.forcedPiece).toBeNull(); });
+ test('men cannot capture backward but kings can',()=>{ const pieces=[piece('r','red','e5'),piece('b','blue','d4'),piece('b2','blue','h8')]; expect(legalMoves(fixture(pieces)).every(m=>m.to!=='c3')).toBe(true); pieces[0].king=true; expect(legalMoves(fixture(pieces))).toEqual([{from:'e5',to:'c3',capture:'d4'}]); });
+ test('wins when enemy is captured or cannot move',()=>{ const g=applyMove(fixture([piece('r','red','a1'),piece('b','blue','b2')]),'a1','c3'); expect(g.winner).toBe('red'); expect(legalMoves(g)).toEqual([]); const blocked=applyMove(fixture([piece('r','red','a3'),piece('b','blue','h2'),piece('r2','red','g1')]),'a3','b4'); expect(blocked.winner).toBe('red'); });
+ test('draws after 80 quiet half-moves',()=>{let g=fixture([piece('r','red','a1',true),piece('b','blue','h8',true)]); g.quietMoves=79; expect(applyMove(g,'a1','b2').winner).toBe('draw');});
+ test('threefold repetition draws',()=>{let g=fixture([piece('r','red','a1',true),piece('b','blue','h8',true)]); for(let i=0;i<3 && !g.winner;i++){for(const [from,to] of [['a1','b2'],['h8','g7'],['b2','a1'],['g7','h8']]){if(!g.winner)g=applyMove(g,from,to);}} expect(g.winner).toBe('draw');});
+});
